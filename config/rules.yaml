@@ -1,0 +1,23 @@
+rules:
+  - id: negative_earnings
+    description: "Earnings miss leads to sell"
+    patterns: ["earnings miss", "missed earnings", "earnings down", "missed estimates"]
+    action: SELL
+    entities: []          # empty means global
+    weight: 0.6
+    urgency_multiplier: 1.0
+
+  - id: downgrade
+    description: "Analyst downgrade"
+    patterns: ["downgrade", "lowered rating"]
+    action: SELL
+    entities: []
+    weight: 0.4
+
+  - id: rate_cut_gold
+    description: "Rate cut -> buy gold"
+    patterns: ["rate cut", "cut rates", "interest rate cut"]
+    action: BUY
+    entities: ["gold"]   # refer to entities tickers or IDs
+    weight: 0.7
+    urgency_multiplier: 1.2

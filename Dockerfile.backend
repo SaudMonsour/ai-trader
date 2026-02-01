@@ -1,0 +1,27 @@
+
+# Multi-stage build for frontend and backend in one container?
+# Or separate containers via Compose (Best Practice)
+
+# --- BACKEND DOCKERFILE ---
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system deps
+RUN apt-get update && apt-get install -y gcc curl && rm -rf /var/lib/apt/lists/*
+
+# Install Python deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source
+COPY src/ ./src/
+COPY config/ ./config/
+# Create data and logs dir
+RUN mkdir -p data logs
+
+# Expose API port
+EXPOSE 8000
+
+# Run command
+CMD ["python", "-m", "src.main"]

@@ -1,0 +1,14 @@
+feedparser
+textblob
+pandas
+requests
+pyyaml
+python-dotenv
+termcolor
+yfinance
+portalocker
+pytest
+fastapi
+uvicorn
+streamlit
+watchdog
