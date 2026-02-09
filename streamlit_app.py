@@ -75,9 +75,13 @@ st.sidebar.markdown(f":{status_color}[● {status_text}]")
 page = st.sidebar.radio("NAVIGATION", ["DASHBOARD", "SIGNALS", "ORDERS", "LOGS", "SETTINGS"])
 st.sidebar.markdown("---")
 
-# Refresh Button
-if st.sidebar.button("REFRESH DATA"):
+# --- REFRESH LOGIC ---
+@st.fragment(run_every=30)
+def auto_refresh():
+    """Triggers a rerun of the entire app every 30 seconds."""
     st.rerun()
+
+auto_refresh()
 
 # --- PAGES ---
 
@@ -219,7 +223,4 @@ elif page == "SETTINGS":
     config_content = load_config_file()
     st.code(config_content, language="yaml")
 
-# Auto-refresh logic (optional, for 'live' feel)
-if st.sidebar.checkbox("AUTO-REFRESH (30s)", value=False):
-    time.sleep(30)
-    st.rerun()
+# Auto-refresh logic automated (occurs every 30s)
