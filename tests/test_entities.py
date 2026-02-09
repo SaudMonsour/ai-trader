@@ -1,4 +1,4 @@
-from analysis.entities import EntityExtractor
+from src.analysis.entities import EntityExtractor
 
 def test_entity_matching(tmp_path, monkeypatch):
     # use default config/entities.yaml

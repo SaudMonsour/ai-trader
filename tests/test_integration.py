@@ -1,38 +1,46 @@
 import os
-from state.state_manager import StateManager
-from ingestion.news_fetcher import NewsFetcher
-from signals.engine import RuleEngine
-from analysis.sentiment import analyze_sentiment
-from analysis.entities import EntityExtractor
-from execution.order_manager import OrderManager
-from execution.paper_broker import PaperBroker
-from utils.logger import get_logger
+from src.utils.state_manager import StateManager
+from src.ingestion.news_fetcher import NewsFetcher
+from src.signals.engine import SignalEngine
+from src.analysis.sentiment import SentimentAnalyzer
+from src.analysis.entities import EntityExtractor
+from src.execution.order_manager import OrderManager
+from src.execution.paper_broker import PaperBroker
+from src.utils.logger import get_logger
+from src.models import NewsItem
 
 def test_main_cycle(tmp_path, monkeypatch):
     # prepare temp state file
-    os.environ["PYTEST_TMPDIR"] = str(tmp_path)
-    state = StateManager(path=tmp_path / "state.json")
-    logger = get_logger("test", path=str(tmp_path / "test.log"))
+    state_file = tmp_path / "state.json"
+    state = StateManager(state_file=str(state_file))
+    logger = get_logger("test")
+    
     # fake news fetcher
     class FakeFetcher:
-        def fetch(self):
-            return [{
-                "news_id": "test_1",
-                "title": "Fed signals rate cut",
-                "link": "http://example.com/1",
-                "summary": "rate cut expected"
-            }]
+        def fetch_all(self):
+            return [NewsItem(
+                id="test_1",
+                source="Test",
+                title="Fed signals rate cut",
+                content="rate cut expected",
+                url="http://example.com/1",
+                published_at="2026-02-09T00:00:00Z"
+            )]
+            
     fetcher = FakeFetcher()
     extractor = EntityExtractor(path="config/entities.yaml")
-    engine = RuleEngine(path="config/rules.yaml")
+    engine = SignalEngine()
+    analyzer = SentimentAnalyzer()
     broker = PaperBroker(state, logger)
     order_mgr = OrderManager(broker, logger)
-    items = fetcher.fetch()
+    
+    items = fetcher.fetch_all()
     for it in items:
-        sentiment = analyze_sentiment(it["title"] + " " + it["summary"])
-        entities = extractor.extract(it["title"] + " " + it["summary"])
-        sig = engine.evaluate(it, sentiment, entities)
-        res = order_mgr.handle(sig, mode="dry_run")
-        assert res["executed"] == False
-        state.mark_processed(it["news_id"])
+        it.sentiment_score = analyzer.analyze(it.title + " " + it.content)
+        it.entities = extractor.extract(it.title + " " + it.content)
+        signals = engine.generate_signal(it)
+        for sig in signals:
+            res = order_mgr.handle(sig, mode="dry_run")
+            assert res["executed"] == False
+        state.mark_news_processed(it.id)
     assert "test_1" in state.state["processed_news_ids"]
