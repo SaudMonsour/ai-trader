@@ -40,7 +40,7 @@ class JsonFormatter(logging.Formatter):
         
         return json.dumps(log_record)
 
-def setup_logger(name="TradingAgent", log_file="logs/trading.log", level=logging.INFO):
+def setup_logger(name=None, log_file="logs/trading.log", level=logging.INFO):
     logger = logging.getLogger(name)
     logger.setLevel(level)
     

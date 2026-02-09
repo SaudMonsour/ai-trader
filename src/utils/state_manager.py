@@ -73,8 +73,18 @@ class StateManager:
                     f.flush()
                     os.fsync(f.fileno()) # Ensure file content durability
                 
-                # Atomic replace
-                os.replace(tmp_path, self.state_file)
+                # Atomic replace - Retry on Windows if file is locked
+                import time
+                max_retries = 5
+                for i in range(max_retries):
+                    try:
+                        os.replace(tmp_path, self.state_file)
+                        break
+                    except PermissionError as e:
+                        if i == max_retries - 1:
+                            raise e
+                        logger.warning(f"Permission denied on {self.state_file}, retrying {i+1}/{max_retries}...")
+                        time.sleep(0.1)
                 
                 # Attempt to fsync directory (best effort for durability)
                 if hasattr(os, 'O_DIRECTORY'):
@@ -87,7 +97,10 @@ class StateManager:
             except Exception as e:
                 # Cleanup temp on failure
                 if os.path.exists(tmp_path):
-                    os.remove(tmp_path)
+                    try:
+                        os.remove(tmp_path)
+                    except:
+                        pass
                 logger.error(f"Failed to save state: {e}")
                 raise e
 

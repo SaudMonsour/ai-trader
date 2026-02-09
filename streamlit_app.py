@@ -19,11 +19,15 @@ st.markdown("", unsafe_allow_html=True)
 
 # --- HELPER FUNCTIONS ---
 
+from src.utils.state_manager import get_state_manager
+
 def load_state():
     try:
-        with open("data/state.json", "r") as f:
-            return json.load(f)
-    except Exception:
+        sm = get_state_manager()
+        sm.load_state() # Ensure we have latest from disk
+        return sm.state
+    except Exception as e:
+        st.error(f"Error loading state: {e}")
         return {}
 
 def load_logs(lines=100):
@@ -179,16 +183,10 @@ elif page == "SETTINGS":
         else:
             st.success("SYSTEM IS ARMED AND ACTIVE")
             if st.button("TRIGGER EMERGENCY STOP"):
-                # Write to state (DANGEROUS but requested)
                 try:
-                    state["emergency_stop"] = True
-                    # Backup
-                    import shutil
-                    if os.path.exists("data/state.json"):
-                        shutil.copy("data/state.json", "data/state.json.bak")
-                    
-                    with open("data/state.json", "w") as f:
-                        json.dump(state, f, indent=2)
+                    sm = get_state_manager()
+                    sm.set_emergency_stop(True)
+                    st.success("Emergency stop triggered!")
                     st.rerun()
                 except Exception as e:
                     st.error(f"Failed to update state: {e}")
