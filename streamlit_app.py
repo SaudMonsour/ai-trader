@@ -13,6 +13,20 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# --- BACKGROUND BOT THREAD ---
+import threading
+from src.main import TradingBot
+
+@st.cache_resource
+def get_bot():
+    """Starts the bot in a background thread and returns the bot instance."""
+    bot = TradingBot()
+    thread = threading.Thread(target=bot.run, daemon=True)
+    thread.start()
+    return bot, thread
+
+bot_instance, bot_thread = get_bot()
+
 # Text-Only / Monochromatic Styling
 # Using default Streamlit theme for cleaner UI
 st.markdown("", unsafe_allow_html=True)
@@ -51,6 +65,13 @@ def load_config_file():
 # --- SIDEBAR ---
 st.sidebar.title("TRADING AGENT")
 st.sidebar.markdown("---")
+
+# Engine Status indicator
+is_alive = bot_thread.is_alive()
+status_color = "green" if is_alive else "red"
+status_text = "ENGINE ONLINE" if is_alive else "ENGINE OFFLINE"
+st.sidebar.markdown(f":{status_color}[● {status_text}]")
+
 page = st.sidebar.radio("NAVIGATION", ["DASHBOARD", "SIGNALS", "ORDERS", "LOGS", "SETTINGS"])
 st.sidebar.markdown("---")
 

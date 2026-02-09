@@ -12,9 +12,18 @@ Visit [share.streamlit.io](https://share.streamlit.io) and sign in with your Git
 ### 2. Create New App
 Click **"New app"** or **"Deploy an app"** button.
 
-### 3. Configure Deployment
+### 3. ConfigureThe system has been updated to run the **Trading Engine** directly inside the Streamlit application as a background thread. This allows for easy deployment on free cloud platforms.
 
-Fill in the following fields:
+### **Cloud Deployment (Streamlit Cloud)**
+1. Connect your GitHub repository.
+2. Set the main file to `streamlit_app.py`.
+3. The engine will start automatically.
+
+### **Keeping the app 24/7 (Free Tier)**
+Free cloud tiers often "hibernate" after inactivity. To keep your bot running 24/7:
+1. Use a free service like [UptimeRobot](https://uptimerobot.com/).
+2. Set up an "HTTPS Monitor" to ping your Streamlit app URL every 5 minutes.
+3. This will prevent hibernation and keep the trading engine alive.
 
 - **Repository:** `SaudMonsour/ai-trader` (or `investing` if you renamed it)
 - **Branch:** `main`
@@ -37,8 +46,11 @@ Click **"Deploy!"** button. Streamlit will:
 ## What Gets Deployed
 
 The application includes:
-- **Frontend:** Streamlit dashboard (`streamlit_app.py`)
-- **Configuration:** `config/config.yaml` with 500+ S&P stocks
+- **Frontend:** Stre3. Run the application:
+   streamlit run streamlit_app.py
+
+> [!NOTE]
+> The trading engine now runs automatically in the background when the Streamlit app starts. You no longer need to run `src.main` separately for cloud deployments.
 - **State Management:** `data/state.json` for portfolio tracking
 - **Logging:** System logs at `logs/trading.log`
 

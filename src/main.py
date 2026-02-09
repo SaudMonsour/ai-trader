@@ -1,6 +1,7 @@
 import time
 import sys
 import signal
+import threading
 from src.utils.logger import setup_logger, get_logger
 from src.utils.config_loader import load_config, get_config
 from src.utils.state_manager import get_state_manager
@@ -40,15 +41,20 @@ class TradingBot:
         self.broker = Broker()
         self.broker.set_market_data(self.market_data)
         
-        # Handle Signals
-        signal.signal(signal.SIGINT, self.shutdown)
-        signal.signal(signal.SIGTERM, self.shutdown)
+        # Handle Signals (only in main thread)
+        if threading.current_thread() is threading.main_thread():
+            try:
+                signal.signal(signal.SIGINT, self.shutdown)
+                signal.signal(signal.SIGTERM, self.shutdown)
+            except ValueError:
+                logger.warning("Could not register signal handlers. This is expected in background threads.")
 
-    def shutdown(self, signum, frame):
+    def shutdown(self, signum=None, frame=None):
         logger.info("Shutdown signal received. Saving state...")
         self.running = False
         self.state_manager.save_state()
-        sys.exit(0)
+        if threading.current_thread() is threading.main_thread():
+            sys.exit(0)
 
     def run(self):
         logger.info("Bot started in loop.")
