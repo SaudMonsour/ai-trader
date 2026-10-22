@@ -1,36 +1,17 @@
-# AI Trader
+# وكيل تحليل الأخبار والتداول
 
-AI Trader is an automated system that monitors financial news and executes trades based on sentiment analysis. It is built to run continuously while providing a clear interface for tracking performance.
+نظام مكتوب بلغة Python لمتابعة الأخبار المالية وتحليل مشاعرها وربطها بمحرك تداول ولوحة مراقبة.
 
-The system is fully built in Python, using Streamlit for the user interface.
+## الوظائف
+- جمع الأخبار واحتساب مؤشرات المشاعر.
+- اختيار أسهم من مؤشر السوق وتحليلها.
+- متابعة السيولة والمراكز المفتوحة وحالة النظام.
+- ضوابط لإدارة المخاطر وإيقاف الطوارئ.
 
-## Quick Start
+## البنية
+محرك التنفيذ في `src/main.py`، والواجهة في `streamlit_app.py`. تتبادل المكونات الحالة عبر ملفات داخل مجلد `data/`.
 
-To run the project locally, follow these steps:
+## التشغيل والنشر
+تعتمد الواجهة على Streamlit، وتُضبط نقطة الدخول عند النشر السحابي على `streamlit_app.py`. يتضمن المرجع التقني أوامر تثبيت المتطلبات وتشغيل المحرك واللوحة. وجود خدمة قابلة للتشغيل المستمر لا يثبت أن نسخة منشورة تعمل حاليًا.
 
-1. Install dependencies:
-   pip install -r requirements.txt
-
-2. Run the trading engine:
-   python -m src.main
-
-3. Launch the dashboard:
-   streamlit run streamlit_app.py
-
-## Streamlit Cloud Deployment
-
-This project is designed to be easily deployed to Streamlit Community Cloud.
-
-Point the Streamlit deployment settings to 'streamlit_app.py' as the main entry point. The application will automatically pick up your configuration and data files.
-
-## Project Features
-
-- Real-time news ingestion and automated sentiment scoring.
-- S&P 500 stock selection and analysis.
-- Web dashboard for monitoring cash, open positions, and system health.
-- Built-in emergency stop and risk management controls.
-- Professional light-mode design optimized for clarity.
-
-## Technical Details
-
-The application is structured into a backend engine ('src/main.py') and a Streamlit frontend ('streamlit_app.py'). They communicate via shared state files in the 'data' directory, allowing for a decoupled and reliable architecture suitable for 24/7 operation.
+[المرجع التقني الإنجليزي الكامل](README.en.md).
